@@ -5,9 +5,13 @@
 namespace json {
 
 Builder::ValueContext Builder::Value(Node node){
-    if(nodes_stack_.size() ==0){
+    if(IsRoot()){
         root_ = node;
+        value_can_build_ = true;
         return BaseContext{ *this };
+    }
+    if(nodes_stack_.size() == 0){
+        throw std::logic_error("Double Value Not in Dict or Array");
     }
 
     Node* node_ptr = nodes_stack_.back();
@@ -111,6 +115,10 @@ Builder::KeyContext Builder::BaseContext::Key(std::string string){
 }
 
 Node Builder::BaseContext::Build(){
+    if(builder_.nodes_stack_.size() > 0){
+        throw std::logic_error("Not All Array or Dict End");
+    }
+
 
     return builder_.root_;
 }

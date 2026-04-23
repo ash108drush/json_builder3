@@ -31,7 +31,6 @@ public:
             throw std::logic_error("endarray after constructor");
     };
     Node Build(){
-
         throw std::logic_error("build after constructor");
     };
 
@@ -47,10 +46,8 @@ private:
     std::string current_key_ = "";
 
     bool is_key_ = false;
-    bool is_value_ = false;
-    bool in_dict_ = false;
-    bool in_array_ = false;
     bool first_run_ = true;
+    bool value_can_build_ = false;
 
 
     class BaseContext {
@@ -126,8 +123,7 @@ private:
     class ValueContext : public BaseContext {
     public:
         ValueContext(BaseContext base)
-            : BaseContext(base)
-        {
+            : BaseContext(base) {
         }
 
         ArrayItemContext StartArray() {
@@ -142,11 +138,11 @@ private:
         }
 
         Node Build() {
-            if(IsRoot()){
+           // if(GetBuilder().value_can_build_ ){
                 return BaseContext {*this}.Build();
-            }else{
-                throw std::logic_error("Value Build");
-            }
+           // }else{
+           //     throw std::logic_error("Value Build");
+           // }
 
         }
     };

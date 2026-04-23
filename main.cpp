@@ -90,7 +90,6 @@ int main() {
     cout << endl;
 
 
-/*
     cout << endl;
     json::Print(
         json::Document{
@@ -140,7 +139,7 @@ int main() {
         cout
         );
     cout << endl;
-*/
+
 /*
 
     json::Print(
@@ -180,15 +179,24 @@ int main() {
         cout
         );
     cout << endl;
+
 */
 
     json::Print(
         json::Document{
-            json::Builder{}.StartDict().Key("1").StartArray().EndArray().Key("2").Value(2).EndDict().Build()
+            json::Builder{}.Value("s"s).Value("1"s).Build()
         },
         cout
         );
     cout << endl;
+
+ /*
+  errors
+json::Builder{}.StartArray().StartDict().Key("1"s).Value(12).EndDict().EndDict().Build()
+json::Builder{}.Value("s"s).Value("1"s).Build()
+*/
+
+
 
 /*
 success
