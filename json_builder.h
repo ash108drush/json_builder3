@@ -21,18 +21,10 @@ public:
     ArrayItemContext StartArray();
     ValueContext Value(Node node);
 
-    KeyContext Key(std::string){
-        throw std::logic_error("key after constructor");
-    };
-    BaseContext EndDict(){
-        throw std::logic_error("enddict after constructor");
-    };
-    BaseContext EndArray(){
-            throw std::logic_error("endarray after constructor");
-    };
-    Node Build(){
-        throw std::logic_error("build after constructor");
-    };
+    KeyContext Key(std::string) = delete;
+    BaseContext EndDict() = delete;
+    BaseContext EndArray() = delete;
+    Node Build() = delete;
 
     bool IsRoot(){
         bool tmp = first_run_;
@@ -97,27 +89,16 @@ private:
             : BaseContext(base)
         {
         }
-        BaseContext EndArray() {
-            throw std::logic_error("DictValueContext EndArray");
-        }
-        DictValueContext StartDict() {
-            // return BaseContext {*this}.StartDict();
-            throw std::logic_error("DictValueContext StartDict");
-        }
-        ArrayItemContext StartArray() {
-            throw std::logic_error("DictValueContext StartArray");
-        }
-        ValueContext Value(Node){
-            throw std::logic_error("DictValueContext Value");
-        }
+        BaseContext EndArray() = delete;
+        DictValueContext StartDict() = delete;
+        ArrayItemContext StartArray() = delete;
+        ValueContext Value(Node) = delete;
     };
 
     class ArrayItemContext : public BaseContext {
     public:
         ArrayItemContext(BaseContext base) : BaseContext(base) {}
-        BaseContext EndDict() {
-            throw std::logic_error("Array Item EndDict");
-        }
+        BaseContext EndDict() = delete;
     };
 
     class ValueContext : public BaseContext {
@@ -126,16 +107,8 @@ private:
             : BaseContext(base) {
         }
 
-        ArrayItemContext StartArray() {
-            throw std::logic_error("StartArray after value");
-        }
-        DictValueContext StartDict(){
+        ArrayItemContext StartArray() = delete;
 
-            return BaseContext {*this}.StartDict();
-       }
-        ValueContext Value(Node node){
-            return BaseContext {*this}.Value(node);
-        }
 
         Node Build() {
            // if(GetBuilder().value_can_build_ ){
@@ -152,16 +125,10 @@ private:
         KeyContext(BaseContext base)
             : BaseContext(base){
         }
-        KeyContext Key(std::string){
-            throw std::logic_error("Key Key");
-        }
-        BaseContext EndArray() {
-            throw std::logic_error("Key End array");
-        };
+        KeyContext Key(std::string) = delete;
+        BaseContext EndArray() = delete;
         //  DictValueContext StartDict() = delete;
-        Node Build() {
-            throw std::logic_error("Key build failed");
-        }
+        Node Build() = delete;
 
     };
 
