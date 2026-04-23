@@ -8,12 +8,11 @@ Builder::ValueContext Builder::Value(Node node){
     if(nodes_stack_.size() ==0){
         root_ = node;
         return BaseContext{ *this };
-
     }
 
     Node* node_ptr = nodes_stack_.back();
     if(node_ptr->IsArray()){
-        node_ptr->AsArray().emplace_back(node);
+        node_ptr->AsArray().emplace_back(std::move(node));
     }
 
     if(node_ptr->IsDict()){
@@ -33,7 +32,6 @@ Builder::ValueContext Builder::Value(Node node){
 }
 
 Builder::ArrayItemContext Builder::StartArray() {
-
     if(IsRoot()){
         root_ =  Node(Array());
         nodes_stack_.push_back(&root_);
@@ -41,32 +39,23 @@ Builder::ArrayItemContext Builder::StartArray() {
     }
     Node* node_ptr = nodes_stack_.back();
     if(node_ptr->IsDict()){
-        if(is_key_){
+        if(is_key_){                
             Node* node_new = new Node(Array());
-            node_ptr->AsDict().insert({current_key_,*node_new});
-            nodes_stack_.push_back(node_new);
+            auto pair = node_ptr->AsDict().emplace(current_key_,*node_new);
+            Node *nd = &pair.first->second;
+            nodes_stack_.push_back(std::move(nd));
         }else{
             throw std::logic_error("StartArray not after Key in Dict");
         }
     }
 
-
-
+    if(node_ptr->IsArray()){
+            Node* node_new = new Node(Array());
+            Node& nd = node_ptr->AsArray().emplace_back(std::move(*node_new));
+            nodes_stack_.push_back(&nd);
+    }
     return BaseContext {*this};
 }
-
-Builder::BaseContext Builder::BaseContext::EndArray() {
-
-    Node* node_ptr = builder_.nodes_stack_.back();
-    if(node_ptr->IsArray()){
-            builder_.nodes_stack_.pop_back();
-
-    }
-
-    return *this;
-}
-
-
 
 
 Builder::DictValueContext Builder::StartDict() {
@@ -77,30 +66,42 @@ Builder::DictValueContext Builder::StartDict() {
     }
 
     Node* node_ptr = nodes_stack_.back();
-    if(node_ptr->IsArray()){
+    if(node_ptr->IsArray()){      
         Node* node_new = new Node(Dict());
-        node_ptr->AsArray().emplace_back(*node_new);
-        nodes_stack_.push_back(std::move(node_new));
+        Node& nd = node_ptr->AsArray().emplace_back(std::move(*node_new));
+        nodes_stack_.push_back(&nd);
+    }
+
+    if(node_ptr->IsDict()){
+        if(is_key_){
+            Node* node_new = new Node(Dict());
+            auto pair = node_ptr->AsDict().emplace(current_key_,*node_new);
+            Node *nd = &pair.first->second;
+            nodes_stack_.push_back(std::move(nd));
+        }else{
+            throw std::logic_error("StartDict not after Key in Dict");
+        }
     }
 
     return BaseContext{ *this };
 }
 
 
+Builder::BaseContext Builder::BaseContext::EndArray() {
+    Node* node_ptr = builder_.nodes_stack_.back();
+    if(node_ptr->IsArray()){
+        builder_.nodes_stack_.pop_back();
+    }
+    return *this;
+}
 
 Builder::BaseContext Builder::BaseContext::EndDict() {
-
     Node* node_ptr = builder_.nodes_stack_.back();
     if(node_ptr->IsDict()){
             builder_.nodes_stack_.pop_back();
     }
-
-
     return *this;
 }
-
-
-
 
 
 Builder::KeyContext Builder::BaseContext::Key(std::string string){
@@ -110,37 +111,6 @@ Builder::KeyContext Builder::BaseContext::Key(std::string string){
 }
 
 Node Builder::BaseContext::Build(){
-    // if(nodes_stack_.size() == 1){
-    //std::cout << "stack size: " << nodes_stack_.size()  << std::endl;
-/*
-    if(builder_.nodes_stack_.empty()){
-        throw std::logic_error("nodes_stack_ empty");
-    }
-
-    if(builder_.in_array_  || builder_.in_dict_){
-        throw std::logic_error("builder in array or in dict");
-    }
-
-    if(builder_.nodes_stack_.size() > 1){
-        throw std::logic_error("nodes stack size >1");
-    }
-
-    if(builder_.nodes_stack_.size() == 0){
-        throw std::logic_error("nodes stack size =0");
-    }
-
-
-    Node node = *builder_.nodes_stack_.back();
-    if(builder_.first_run_){
-        throw std::logic_error("Build first run");
-    }
-    if(builder_.nodes_stack_.empty()){
-        throw std::logic_error("nodes_stack_ empty");
-    }
-*/
-   // std::cout << "builder: " <<builder_.nodes_stack_.size() << std::endl;
-    //Node node = *builder_.nodes_stack_[0];
-   // builder_.root_ = std::move(node);
 
     return builder_.root_;
 }

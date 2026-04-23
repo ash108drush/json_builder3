@@ -29,7 +29,7 @@ int main() {
         cout
         );
     cout << endl;
-/*
+
     json::Print(
         json::Document{
             json::Builder{}
@@ -42,7 +42,31 @@ int main() {
         cout
         );
     cout << endl;
+
     std::cout << "MAIN EXAMPLE" << std::endl;
+    json::Print(
+        json::Document{
+            json::Builder{}
+                .StartDict()
+                .Key("key1"s).Value(123)
+                .Key("key2"s).Value("value2"s)
+                .Key("key3"s).StartArray()
+                .Value(456)
+                .Value(457)
+                .Value(458)
+                .StartDict().EndDict()
+                .StartDict()
+                .Key(""s)
+                .Value(nullptr)
+                .EndDict()
+                .EndArray()
+                .EndDict()
+                .Build()
+        },
+        cout
+        );
+    cout << endl;
+
     json::Print(
         json::Document{
             json::Builder{}
@@ -64,7 +88,7 @@ int main() {
         cout
         );
     cout << endl;
-*/
+
 
 /*
     cout << endl;
@@ -157,16 +181,15 @@ int main() {
         );
     cout << endl;
 */
-/*
+
     json::Print(
         json::Document{
-            //json::Builder{}.StartDict().Key("1"s).Value("2"s).StartDict().Key("1"s).Value("2"s).EndDict().EndDict().Build()
-            json::Builder{}.Build()
+            json::Builder{}.StartDict().Key("1").StartArray().EndArray().Key("2").Value(2).EndDict().Build()
         },
         cout
         );
     cout << endl;
-*/
+
 /*
 success
 json::Builder{}.StartArray().StartDict().EndDict().Value(1).EndArray().Build()
