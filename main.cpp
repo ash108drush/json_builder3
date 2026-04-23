@@ -184,7 +184,13 @@ int main() {
 
     json::Print(
         json::Document{
-            json::Builder{}.Value("s"s).Value("1"s).Build()
+            json::Builder{}
+                .StartDict()
+                .Key("key1"s).Value(123)
+                .EndDict()
+                .EndArray() // <-- тут должна быть ошибка
+
+                .Build()
         },
         cout
         );
