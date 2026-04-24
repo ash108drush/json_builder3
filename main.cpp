@@ -181,25 +181,49 @@ int main() {
     cout << endl;
 
 */
-
     json::Print(
         json::Document{
-            json::Builder{}
-                .StartDict()
-                .Key("key1"s).Value(123)
-                .EndDict()
-                .EndArray() // <-- тут должна быть ошибка
-
-                .Build()
+            //json::Builder{}.StartDict().Key("1"s).Value("2"s).StartDict().Key("1"s).Value("2"s).EndDict().EndDict().Build()
+            json::Builder{}.Value("s"s).Build()
         },
         cout
         );
     cout << endl;
 
+/*
+ * сли брать версию которая была в архиве в начальном посте, то:
+    разделяем функциональность:
+        оставляем ValueContext когда возвращаем из KeyContext::Value.
+        в Builder::Value возвращаем что-то другое (Builder& подойдет поскольку задача упрощена, но в полной тут бы был отдельный класс).
+        ArrayContext::Value в этой версии возвращал ArrayContext, это правильно, оставляем.
+    добавляем ошибки компиляции:
+        в ValueContext убираем все кроме Key() и EndDict()
+
+собственно все
+*/
+
+
+
  /*
   errors
 json::Builder{}.StartArray().StartDict().Key("1"s).Value(12).EndDict().EndDict().Build()
 json::Builder{}.Value("s"s).Value("1"s).Build()
+
+   json::Print(
+        json::Document{
+            json::Builder{}
+                .StartDict()
+                    .Key("key1"s).Value(123)
+                    .EndArray() // <-- тут должна быть ошибка
+                .EndDict()
+                .Build()},
+        cout);
+
+.StartDict().Key("").Value(1).Build()
+.StartDict().Key("").Value(1).StartArray()
+.StartDict().Key("").Value(1).EndArray()
+.StartDict().Key("").Value(1).Value(1)
+
 */
 
 
@@ -211,7 +235,24 @@ json::Builder{}.StartArray().StartArray().EndArray().Value(1).EndArray().Build()
 json::Builder{}.StartDict().Key("1").StartDict().EndDict().Key("2").Value(2).EndDict().Build()
 json::Builder{}.StartDict().Key("1").StartArray().EndArray().Key("2").Value(2).EndDict().Build()
 
-
+json::Print(
+        json::Document{
+            json::Builder{}
+                .StartDict()
+                    .Key("key1"s).Value(123)
+                    .Key("key2"s).Value("value2"s)
+                    .Key("key3"s).StartArray()
+                        .Value(456)
+                        .StartDict()
+                        .EndDict()
+                        .StartDict()
+                            .Key(""s).Value(nullptr)
+                        .EndDict()
+                        .Value(""s) // Builder::Value()
+                    .EndArray() // <-- ок
+                .EndDict()
+                .Build()},
+        cout);
 
 */
 }
