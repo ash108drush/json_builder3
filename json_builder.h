@@ -60,7 +60,6 @@ private:
              return builder_.StartArray();
         }
         BaseContext Value(Node node) {
-
             return builder_.Value(node);
         }
 
@@ -127,6 +126,24 @@ private:
         //Node Build() = delete;
     };
 
+    class ValueKeyContext : public BaseContext {
+    public:
+        ValueKeyContext (BaseContext base)
+            : BaseContext(base) {
+        }
+
+        ArrayItemContext StartArray() = delete;
+        BaseContext EndArray() = delete;
+        DictValueContext StartDict() = delete;
+        ValueContext Value() = delete;
+        Node Build() = delete;
+        //BaseContext EndDict() = delete;
+        //KeyContext Key() = delete;
+
+
+    };
+
+
     class KeyContext : public BaseContext {
     public:
         KeyContext(BaseContext base)
@@ -139,6 +156,9 @@ private:
 
         //  DictValueContext StartDict() = delete;
         Node Build() = delete;
+        ValueKeyContext  Value(Node node) {
+           return  this->GetBuilder().Value(node);
+        };
 
         //Key вызван не Value, не StartDict и не StartArray.
 
