@@ -95,17 +95,47 @@ private:
         Node Build() = delete;
         //StartDict следует не Key и не EndDict.
     };
+     class StartArrayNextValueContext : public BaseContext {
+         public:
+            StartArrayNextValueContext (BaseContext base)
+            : BaseContext(base) {
+        }
+            KeyContext Key() = delete;
+            BaseContext EndDict() = delete;
+            Node Build() = delete;
+//не Value, не StartDict, не StartArray и не EndArray.
+     };
+
+    class StartArrayValueContext : public BaseContext {
+    public:
+        StartArrayValueContext (BaseContext base)
+            : BaseContext(base) {
+        }
+        //BaseContext EndArray() = delete;
+        //ArrayItemContext StartArray() = delete;
+        //DictValueContext StartDict() = delete;
+        StartArrayNextValueContext Value(Node node){
+             return  this->GetBuilder().Value(node);
+        };
+
+        KeyContext Key() = delete;
+        Node Build() = delete;
+        BaseContext EndDict() = delete;
+
+
+
+    };
 
     class ArrayItemContext : public BaseContext {
     public:
         ArrayItemContext(BaseContext base) : BaseContext(base) {}
 
         BaseContext EndDict() = delete;
-        BaseContext Value(Node node){
-           return BaseContext{*this}.Value(node);
-        };
         KeyContext Key() = delete;
         Node Build() = delete;
+        StartArrayValueContext  Value(Node node){
+            return BaseContext{*this}.Value(node);
+        };
         //StartArray следует не Value, не StartDict, не StartArray и не EndArray.
 
     };
