@@ -100,10 +100,15 @@ private:
     class ArrayItemContext : public BaseContext {
     public:
         ArrayItemContext(BaseContext base) : BaseContext(base) {}
+
         BaseContext EndDict() = delete;
         BaseContext Value(Node node){
            return BaseContext{*this}.Value(node);
         };
+        KeyContext Key() = delete;
+        Node Build() = delete;
+        //StartArray следует не Value, не StartDict, не StartArray и не EndArray.
+
     };
 
     class ValueContext : public BaseContext {
