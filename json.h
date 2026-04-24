@@ -67,7 +67,7 @@ public:
     bool IsArray() const {
         return std::holds_alternative<Array>(*this);
     }
-    Array& AsArray()  {
+    const Array& AsArray() const {
         using namespace std::literals;
         if (!IsArray()) {
             throw std::logic_error("Not an array"s);
@@ -91,7 +91,7 @@ public:
     bool IsDict() const {
         return std::holds_alternative<Dict>(*this);
     }
-     Dict& AsDict() {
+    const Dict& AsDict() const {
         using namespace std::literals;
         if (!IsDict()) {
             throw std::logic_error("Not a dict"s);
@@ -105,6 +105,10 @@ public:
     }
 
     const Value& GetValue() const {
+        return *this;
+    }
+
+    Value& GetValue() {
         return *this;
     }
 };

@@ -1,6 +1,4 @@
 #include "json_builder.h"
-#include <memory>
-#include <algorithm>
 
 namespace json {
 
@@ -16,20 +14,18 @@ Builder::ValueContext Builder::Value(Node node){
 
     Node* node_ptr = nodes_stack_.back();
     if(node_ptr->IsArray()){
-        node_ptr->AsArray().emplace_back(std::move(node));
-         return BaseContext{ *this };
+        std::get<Array>(node_ptr->GetValue()).emplace_back(std::move(node));
+        return BaseContext{ *this };
     }
     if(node_ptr->IsDict()){
         if(is_key_){
-            node_ptr->AsDict().insert({current_key_,std::move(node)});
+            std::get<Dict>(node_ptr->GetValue()).insert({current_key_,std::move(node)});
             is_key_ = false;
         }else{
             throw std::logic_error("Value not after Key in Dict");
         }
          return BaseContext{ *this };
     }
-
-
     throw std::logic_error("Value not in Dict not in Array");
     return BaseContext{ *this };
 }
@@ -49,7 +45,7 @@ Builder::ArrayItemContext Builder::StartArray() {
     if(node_ptr->IsDict()){
         if(is_key_){
             Node node_new =  Node(Array());
-            auto pair = node_ptr->AsDict().emplace(current_key_,std::move(node_new));
+            auto pair = std::get<Dict>(node_ptr->GetValue()).emplace(current_key_,std::move(node_new));
             Node *nd = &pair.first->second;
             nodes_stack_.push_back(std::move(nd));
             is_key_ = false;
@@ -61,12 +57,11 @@ Builder::ArrayItemContext Builder::StartArray() {
 
     if(node_ptr->IsArray()){
         Node node_new = Node(Array());
-        Node& nd = node_ptr->AsArray().emplace_back(std::move(node_new));
+        Node& nd = std::get<Array>(node_ptr->GetValue()).emplace_back(std::move(node_new));
         nodes_stack_.push_back(std::move(&nd));
     }
     return BaseContext {*this};
  }
-
 
 Builder::DictValueContext Builder::StartDict() {
     if(IsRoot()){
@@ -80,7 +75,7 @@ Builder::DictValueContext Builder::StartDict() {
     Node* node_ptr = nodes_stack_.back();
     if(node_ptr->IsArray()){
         Node node_new = Node(Dict());
-        Node& nd = node_ptr->AsArray().emplace_back(std::move(node_new));
+        Node& nd = std::get<Array>(node_ptr->GetValue()).emplace_back(std::move(node_new));
         nodes_stack_.push_back(std::move(&nd));
         return BaseContext{ *this };
     }
@@ -88,7 +83,7 @@ Builder::DictValueContext Builder::StartDict() {
     if(node_ptr->IsDict()){
         if(is_key_){
             Node node_new = Node(Dict());
-            auto pair = node_ptr->AsDict().emplace(current_key_,std::move(node_new));
+            auto pair = std::get<Dict>(node_ptr->GetValue()).emplace(current_key_,std::move(node_new));
             Node *nd = &pair.first->second;
             nodes_stack_.push_back(std::move(nd));
             is_key_ = false;
@@ -99,15 +94,12 @@ Builder::DictValueContext Builder::StartDict() {
     }
 
     return BaseContext{ *this };
-
 }
-
 
 Builder::BaseContext Builder::BaseContext::EndArray() {
     if(builder_.nodes_stack_.size() ==0){
         throw std::logic_error("End Array Zero Stack Size");
     }
-
     Node* node_ptr = builder_.nodes_stack_.back();
     if(node_ptr->IsArray()){
         builder_.nodes_stack_.pop_back();
@@ -157,10 +149,7 @@ Node Builder::BaseContext::Build(){
     if(builder_.nodes_stack_.size() > 0){
         throw std::logic_error("Not All Array or Dict End");
     }
-
     return builder_.root_;
 }
-
-
 
 } // end namespace

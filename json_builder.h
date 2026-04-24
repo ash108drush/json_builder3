@@ -41,13 +41,11 @@ private:
     bool first_run_ = true;
     bool value_can_build_ = false;
 
-
     class BaseContext {
     public:
         BaseContext(Builder& builder)
-            : builder_(builder){
+            : builder_(builder){ }
 
-        }
         KeyContext Key(std::string string);
         BaseContext EndDict();
         BaseContext EndArray();
@@ -62,11 +60,9 @@ private:
         BaseContext Value(Node node) {
             return builder_.Value(node);
         }
-
         bool IsRoot(){
             return builder_.IsRoot();
-        }
-
+        }        
         Builder& GetBuilder(){
             return builder_;
         }
@@ -78,22 +74,18 @@ private:
      class BuildContext : public BaseContext {
      public:
          BuildContext(BaseContext base)
-             : BaseContext(base) {
-         }
+             : BaseContext(base){}
      };
 
     class DictValueContext : public BaseContext {
     public:
         DictValueContext(BaseContext base)
-            : BaseContext(base)
-        {
-        }
+            : BaseContext(base) {}
         DictValueContext StartDict() = delete;
         ArrayItemContext StartArray() = delete;
         BaseContext EndArray() = delete;
         ValueContext Value(Node) = delete;
         Node Build() = delete;
-        //StartDict следует не Key и не EndDict.
     };
      class StartArrayNextValueContext : public BaseContext {
          public:
@@ -103,7 +95,6 @@ private:
             KeyContext Key() = delete;
             BaseContext EndDict() = delete;
             Node Build() = delete;
-//не Value, не StartDict, не StartArray и не EndArray.
      };
 
     class StartArrayValueContext : public BaseContext {
@@ -111,19 +102,12 @@ private:
         StartArrayValueContext (BaseContext base)
             : BaseContext(base) {
         }
-        //BaseContext EndArray() = delete;
-        //ArrayItemContext StartArray() = delete;
-        //DictValueContext StartDict() = delete;
         StartArrayNextValueContext Value(Node node){
              return  this->GetBuilder().Value(node);
         };
-
         KeyContext Key() = delete;
         Node Build() = delete;
         BaseContext EndDict() = delete;
-
-
-
     };
 
     class ArrayItemContext : public BaseContext {
@@ -136,8 +120,6 @@ private:
         StartArrayValueContext  Value(Node node){
             return BaseContext{*this}.Value(node);
         };
-        //StartArray следует не Value, не StartDict, не StartArray и не EndArray.
-
     };
 
     class ValueContext : public BaseContext {
@@ -145,15 +127,10 @@ private:
         ValueContext(BaseContext base)
             : BaseContext(base) {
         }
-
         ArrayItemContext StartArray() = delete;
         BaseContext EndArray() = delete;
         DictValueContext StartDict() = delete;
         ValueContext Value() = delete;
-        //BaseContext EndDict() = delete;
-        //KeyContext Key() = delete;
-
-        //Node Build() = delete;
     };
 
     class ValueKeyContext : public BaseContext {
@@ -161,40 +138,26 @@ private:
         ValueKeyContext (BaseContext base)
             : BaseContext(base) {
         }
-
         ArrayItemContext StartArray() = delete;
         BaseContext EndArray() = delete;
         DictValueContext StartDict() = delete;
         ValueContext Value() = delete;
         Node Build() = delete;
-        //BaseContext EndDict() = delete;
-        //KeyContext Key() = delete;
-
-
     };
-
 
     class KeyContext : public BaseContext {
     public:
         KeyContext(BaseContext base)
             : BaseContext(base){
         }
-
         KeyContext Key(std::string) = delete;
         BaseContext EndArray() = delete;
         BaseContext EndDict() = delete;
-
-        //  DictValueContext StartDict() = delete;
         Node Build() = delete;
         ValueKeyContext  Value(Node node) {
            return  this->GetBuilder().Value(node);
         };
-
-        //Key вызван не Value, не StartDict и не StartArray.
-
-
     };
-
 
 };
 
